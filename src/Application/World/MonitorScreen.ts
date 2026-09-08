@@ -9,6 +9,7 @@ import Camera from '../Camera/Camera';
 import EventEmitter from '../Utils/EventEmitter';
 
 const SCREEN_SIZE = { w: 1280, h: 1024 };
+const SCREEN_RADIUS = 140;
 const IFRAME_PADDING = 32;
 const IFRAME_SIZE = {
     w: SCREEN_SIZE.w - IFRAME_PADDING,
@@ -43,7 +44,8 @@ export default class MonitorScreen extends EventEmitter {
         this.resources = this.application.resources;
         this.screenSize = new THREE.Vector2(SCREEN_SIZE.w, SCREEN_SIZE.h);
         this.camera = this.application.camera;
-        this.position = new THREE.Vector3(0, 950, 255);
+        // Match the centre of the convex CRT glass in the Blender model.
+        this.position = new THREE.Vector3(0, 947, 301);
         this.rotation = new THREE.Euler(-3 * THREE.MathUtils.DEG2RAD, 0, 0);
         this.videoTextures = {};
         this.mouseClickInProgress = false;
@@ -53,7 +55,6 @@ export default class MonitorScreen extends EventEmitter {
         this.initializeScreenEvents();
         this.createIframe();
         const maxOffset = this.createTextureLayers();
-        this.createEnclosingPlanes(maxOffset);
         this.createPerspectiveDimmer(maxOffset);
     }
 
@@ -140,6 +141,8 @@ export default class MonitorScreen extends EventEmitter {
         container.style.height = this.screenSize.height + 'px';
         container.style.opacity = '1';
         container.style.background = '#1d2e2f';
+        container.style.borderRadius = SCREEN_RADIUS + 'px';
+        container.style.overflow = 'hidden';
 
         // Create iframe
         const iframe = document.createElement('iframe');
@@ -233,17 +236,16 @@ export default class MonitorScreen extends EventEmitter {
         material.side = THREE.DoubleSide;
         material.opacity = 0;
         material.transparent = true;
+        material.depthWrite = false;
         // NoBlending allows the GL plane to occlude the CSS plane
         material.blending = THREE.NoBlending;
 
         // Create plane geometry
-        const geometry = new THREE.PlaneGeometry(
-            this.screenSize.width,
-            this.screenSize.height
-        );
+        const geometry = this.createScreenGeometry();
 
         // Create the GL plane mesh
         const mesh = new THREE.Mesh(geometry, material);
+        mesh.renderOrder = 10;
 
         // Copy the position, rotation and scale of the CSS plane to the GL plane
         mesh.position.copy(object.position);
@@ -264,8 +266,9 @@ export default class MonitorScreen extends EventEmitter {
         this.getVideoTextures('video-1');
         this.getVideoTextures('video-2');
 
-        // Scale factor to multiply depth offset by
-        const scaleFactor = 4;
+        // Composite the effects at the glass surface. Explicit ordering, rather
+        // than closely stacked depth-writing planes, stays stable in room view.
+        const scaleFactor = 0;
 
         // Construct the texture layers
         const layers = {
@@ -299,13 +302,14 @@ export default class MonitorScreen extends EventEmitter {
         let maxOffset = -1;
 
         // Add the texture layers to the screen
-        for (const [_, layer] of Object.entries(layers)) {
+        for (const [index, layer] of Object.values(layers).entries()) {
             const offset = layer.offset * scaleFactor;
             this.addTextureLayer(
                 layer.texture,
                 layer.blending,
                 layer.opacity,
-                offset
+                offset,
+                11 + index
             );
             // Calculate the max offset
             if (offset > maxOffset) maxOffset = offset;
@@ -339,7 +343,8 @@ export default class MonitorScreen extends EventEmitter {
         texture: THREE.Texture,
         blendingMode: THREE.Blending,
         opacity: number,
-        offset: number
+        offset: number,
+        renderOrder: number
     ) {
         // Create material
         const material = new THREE.MeshBasicMaterial({
@@ -348,16 +353,15 @@ export default class MonitorScreen extends EventEmitter {
             side: THREE.DoubleSide,
             opacity,
             transparent: true,
+            depthWrite: false,
         });
 
         // Create geometry
-        const geometry = new THREE.PlaneGeometry(
-            this.screenSize.width,
-            this.screenSize.height
-        );
+        const geometry = this.createScreenGeometry();
 
         // Create mesh
         const mesh = new THREE.Mesh(geometry, material);
+        mesh.renderOrder = renderOrder;
 
         // Copy position and apply the depth offset
         mesh.position.copy(
@@ -457,20 +461,19 @@ export default class MonitorScreen extends EventEmitter {
             side: THREE.DoubleSide,
             color: 0x000000,
             transparent: true,
+            depthWrite: false,
             blending: THREE.AdditiveBlending,
         });
 
-        const plane = new THREE.PlaneGeometry(
-            this.screenSize.width,
-            this.screenSize.height
-        );
+        const plane = this.createScreenGeometry();
 
         const mesh = new THREE.Mesh(plane, material);
+        mesh.renderOrder = 15;
 
         mesh.position.copy(
             this.offsetPosition(
                 this.position,
-                new THREE.Vector3(0, 0, maxOffset - 5)
+                new THREE.Vector3(0, 0, maxOffset)
             )
         );
 
@@ -490,8 +493,33 @@ export default class MonitorScreen extends EventEmitter {
     offsetPosition(position: THREE.Vector3, offset: THREE.Vector3) {
         const newPosition = new THREE.Vector3();
         newPosition.copy(position);
-        newPosition.add(offset);
+        newPosition.add(offset.clone().applyEuler(this.rotation));
         return newPosition;
+    }
+
+    createScreenGeometry() {
+        const w = this.screenSize.width;
+        const h = this.screenSize.height;
+        const r = SCREEN_RADIUS;
+        const x = -w / 2;
+        const y = -h / 2;
+        const shape = new THREE.Shape();
+        shape.moveTo(x + r, y);
+        shape.lineTo(x + w - r, y);
+        shape.quadraticCurveTo(x + w, y, x + w, y + r);
+        shape.lineTo(x + w, y + h - r);
+        shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        shape.lineTo(x + r, y + h);
+        shape.quadraticCurveTo(x, y + h, x, y + h - r);
+        shape.lineTo(x, y + r);
+        shape.quadraticCurveTo(x, y, x + r, y);
+        const geometry = new THREE.ShapeGeometry(shape, 16);
+        const positions = geometry.getAttribute('position');
+        const uvs = geometry.getAttribute('uv');
+        for (let i = 0; i < positions.count; i++) {
+            uvs.setXY(i, (positions.getX(i) + w / 2) / w, (positions.getY(i) + h / 2) / h);
+        }
+        return geometry;
     }
 
     update() {

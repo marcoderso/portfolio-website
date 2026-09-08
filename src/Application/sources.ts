@@ -7,7 +7,12 @@ const sources: Resource[] = [
     {
         name: 'computerSetupTexture',
         type: 'texture',
-        path: 'models/Computer/baked_computer.jpg',
+        path: 'models/Computer/baked_computer_light.jpg',
+    },
+    {
+        name: 'computerAlbedoTexture',
+        type: 'texture',
+        path: 'models/Computer/computer_albedo.png',
     },
     {
         name: 'environmentModel',
