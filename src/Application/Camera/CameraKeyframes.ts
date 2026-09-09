@@ -30,6 +30,10 @@ const keys: { [key in CameraKey]: CameraKeyframe } = {
         position: new THREE.Vector3(0, 1800, 5500),
         focalPoint: new THREE.Vector3(0, 500, 0),
     },
+    diskettes: {
+        position: new THREE.Vector3(2600, 3200, 6000),
+        focalPoint: new THREE.Vector3(500, 150, 0),
+    },
     loading: {
         position: new THREE.Vector3(-35000, 35000, 35000),
         focalPoint: new THREE.Vector3(0, -5000, 0),
@@ -60,6 +64,20 @@ export class MonitorKeyframe extends CameraKeyframeInstance {
         const additionalZoom = this.sizes.width < 768 ? 0 : 600;
         this.targetPos.z = this.origin.z + aspect * 1200 - additionalZoom;
         this.position.copy(this.targetPos);
+    }
+}
+
+export class DiskettesKeyframe extends CameraKeyframeInstance {
+    application: Application;
+
+    constructor() {
+        super(keys.diskettes);
+        this.application = new Application();
+    }
+
+    update() {
+        const { width, height } = this.application.sizes;
+        this.position.z = 4200 + (height / width) * 2400;
     }
 }
 

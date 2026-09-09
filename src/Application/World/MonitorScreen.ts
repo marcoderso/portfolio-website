@@ -232,7 +232,8 @@ export default class MonitorScreen extends EventEmitter {
         this.cssScene.add(object);
 
         // Create GL plane
-        const material = new THREE.MeshLambertMaterial();
+        // The transparent CSS cutout must remain black even when moving props add lights.
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
         material.side = THREE.DoubleSide;
         material.opacity = 0;
         material.transparent = true;

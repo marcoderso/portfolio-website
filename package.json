@@ -4,7 +4,8 @@
     "scripts": {
         "start": "node server/index.ts",
         "build": "webpack --config ./bundler/webpack.prod.js",
-        "dev": "webpack serve --config ./bundler/webpack.dev.js"
+        "dev": "webpack serve --config ./bundler/webpack.dev.js",
+        "test:diskettes": "node scripts/test-diskettes.cjs"
     },
     "dependencies": {
         "@babel/core": "^7.16.12",

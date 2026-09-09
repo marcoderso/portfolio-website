@@ -98,6 +98,7 @@ export default class Application {
     }
 
     destroy() {
+        this.world.disketteBox?.destroy();
         this.sizes.off('resize');
         this.time.off('tick');
 
