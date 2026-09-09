@@ -12,6 +12,14 @@ The computer model is reconstructed from reference photographs, using the versio
 
 The older `baked_computer.jpg` is retained but no longer loaded. Draco decoding uses the existing files under `static/draco/gltf/`.
 
+## Tabletop shadows
+
+`static/models/World/baked_environment_robotron.jpg` replaces the original room atlas at runtime. Its tabletop region removes the previous computer, keyboard, mouse, and cable silhouettes. The original room atlas is retained unchanged.
+
+The obsolete silhouettes were cleaned with built-in Imagegen. Only a feathered band from the cleaned tabletop crop is used, preserving the existing paper and mug shadows. New shadows are derived from the actual Robotron geometry using two Cycles diffuse-light bakes: an empty tabletop baseline and the tabletop with the new computer. Their clamped ratio modulates the cleaned surface, preserving the room's underlying lighting. No runtime shadow pass or additional draw call is needed.
+
+When changing the computer footprint, regenerate this environment texture as well as the computer's own lightmap.
+
 ## Interactive CRT screen
 
 The model is scaled by 900. The HTML screen is positioned at `(0, 947, 301)`, with dimensions `1280 × 1024` and an X rotation of −3 degrees. The exported geometry leaves the screen opening clear for the existing interactive HTML content.

@@ -22,7 +22,7 @@ const sources: Resource[] = [
     {
         name: 'environmentTexture',
         type: 'texture',
-        path: 'models/World/baked_environment.jpg',
+        path: 'models/World/baked_environment_robotron.jpg',
     },
     {
         name: 'decorModel',
