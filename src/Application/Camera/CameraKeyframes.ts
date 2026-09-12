@@ -111,18 +111,20 @@ export class DeskKeyframe extends CameraKeyframeInstance {
 
     update() {
         this.targetFoc.x +=
-            (this.mouse.x - this.sizes.width / 2 - this.targetFoc.x) * 0.05;
+            (this.mouse.x - this.sizes.width / 2 - 350 - this.targetFoc.x) * 0.05;
         this.targetFoc.y +=
             (-(this.mouse.y - this.sizes.height) - this.targetFoc.y) * 0.05;
 
         this.targetPos.x +=
-            (this.mouse.x - this.sizes.width / 2 - this.targetPos.x) * 0.025;
+            (this.mouse.x - this.sizes.width / 2 - 350 - this.targetPos.x) * 0.025;
         this.targetPos.y +=
             (-(this.mouse.y - this.sizes.height * 2) - this.targetPos.y) *
             0.025;
 
         const aspect = this.sizes.height / this.sizes.width;
-        this.targetPos.z = this.origin.z + aspect * 3000 - 1800;
+        // Keep the leaning book in the seated composition, including narrower screens.
+        const framedDeskDistance = 1800 + (2500 * aspect) / Math.tan(THREE.MathUtils.degToRad(17.5));
+        this.targetPos.z = Math.max(this.origin.z + aspect * 3000 - 1350, framedDeskDistance);
 
         this.focalPoint.copy(this.targetFoc);
         this.position.copy(this.targetPos);

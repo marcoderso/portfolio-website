@@ -27,7 +27,8 @@ export default class Decor {
     }
 
     setModel() {
-        for (const name of ['binder_1', 'binder_2']) {
+        for (const name of ['binder_1', 'binder_2', 'paper', 'paper_stack_1',
+            'paper_stack_2', 'paper_holder_bottom', 'paper_holder_top']) {
             const binder = this.bakedModel.getModel().getObjectByName(name);
             if (binder) binder.visible = false;
         }

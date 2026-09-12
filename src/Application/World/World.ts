@@ -9,6 +9,7 @@ import Cursor from './Cursor';
 import Hitboxes from './Hitboxes';
 import AudioManager from '../Audio/AudioManager';
 import DisketteBox from './DisketteBox';
+import PersonalDesk from './PersonalDesk';
 export default class World {
     application: Application;
     scene: THREE.Scene;
@@ -23,6 +24,7 @@ export default class World {
     cursor: Cursor;
     audioManager: AudioManager;
     disketteBox: DisketteBox;
+    personalDesk: PersonalDesk;
 
     constructor() {
         this.application = new Application();
@@ -38,6 +40,7 @@ export default class World {
             this.coffeeSteam = new CoffeeSteam();
             this.audioManager = new AudioManager();
             this.disketteBox = new DisketteBox();
+            this.personalDesk = new PersonalDesk();
             // const hb = new Hitboxes();
             // this.cursor = new Cursor();
         });
@@ -49,5 +52,6 @@ export default class World {
         if (this.coffeeSteam) this.coffeeSteam.update();
         if (this.audioManager) this.audioManager.update();
         if (this.disketteBox) this.disketteBox.update();
+        if (this.personalDesk) this.personalDesk.update();
     }
 }

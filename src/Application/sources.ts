@@ -1,5 +1,10 @@
 const sources: Resource[] = [
     {
+        name: 'personalDeskModel',
+        type: 'gltfModel',
+        path: 'models/PersonalDesk/personal_desk.glb',
+    },
+    {
         name: 'computerSetupModel',
         type: 'gltfModel',
         path: 'models/Computer/computer_setup_interactive.glb',
@@ -27,7 +32,7 @@ const sources: Resource[] = [
     {
         name: 'environmentTexture',
         type: 'texture',
-        path: 'models/World/baked_environment_diskettes.jpg',
+        path: 'models/World/baked_environment_personal.jpg',
     },
     {
         name: 'decorModel',
