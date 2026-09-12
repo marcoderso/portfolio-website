@@ -58,6 +58,7 @@ const MuteToggle: React.FC<MuteToggleProps> = ({}) => {
                 onMouseDown={onMouseDownHandler}
                 onMouseUp={onMouseUpHandler}
                 className="icon-control-container"
+                data-free-camera
                 id="prevent-click"
             >
                 <motion.img

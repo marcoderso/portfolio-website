@@ -2,7 +2,7 @@ const sources: Resource[] = [
     {
         name: 'computerSetupModel',
         type: 'gltfModel',
-        path: 'models/Computer/computer_setup.glb',
+        path: 'models/Computer/computer_setup_interactive.glb',
     },
     {
         name: 'computerSetupTexture',
@@ -15,6 +15,11 @@ const sources: Resource[] = [
         path: 'models/Computer/computer_albedo.png',
     },
     {
+        name: 'disketteBoxModel',
+        type: 'gltfModel',
+        path: 'models/Diskettes/diskette_box.glb',
+    },
+    {
         name: 'environmentModel',
         type: 'gltfModel',
         path: 'models/World/environment.glb',
@@ -22,7 +27,7 @@ const sources: Resource[] = [
     {
         name: 'environmentTexture',
         type: 'texture',
-        path: 'models/World/baked_environment_robotron.jpg',
+        path: 'models/World/baked_environment_diskettes.jpg',
     },
     {
         name: 'decorModel',

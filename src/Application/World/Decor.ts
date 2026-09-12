@@ -27,6 +27,10 @@ export default class Decor {
     }
 
     setModel() {
+        for (const name of ['binder_1', 'binder_2']) {
+            const binder = this.bakedModel.getModel().getObjectByName(name);
+            if (binder) binder.visible = false;
+        }
         this.scene.add(this.bakedModel.getModel());
     }
 }

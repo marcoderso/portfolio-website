@@ -15,6 +15,7 @@ import {
     IdleKeyframe,
     LoadingKeyframe,
     DeskKeyframe,
+    DiskettesKeyframe,
     OrbitControlsStart,
 } from './CameraKeyframes';
 
@@ -23,6 +24,7 @@ export enum CameraKey {
     MONITOR = 'monitor',
     LOADING = 'loading',
     DESK = 'desk',
+    DISKETTES = 'diskettes',
     ORBIT_CONTROLS_START = 'orbitControlsStart',
 }
 export default class Camera extends EventEmitter {
@@ -38,6 +40,7 @@ export default class Camera extends EventEmitter {
     focalPoint: THREE.Vector3;
 
     freeCam: boolean;
+    interactionLocked = false;
     orbitControls: OrbitControls;
 
     currentKeyframe: CameraKey | undefined;
@@ -63,10 +66,12 @@ export default class Camera extends EventEmitter {
             monitor: new MonitorKeyframe(),
             loading: new LoadingKeyframe(),
             desk: new DeskKeyframe(),
+            diskettes: new DiskettesKeyframe(),
             orbitControlsStart: new OrbitControlsStart(),
         };
 
         document.addEventListener('mousedown', (event) => {
+            if (this.interactionLocked) return;
             event.preventDefault();
             // @ts-ignore
             if (event.target.id === 'prevent-click') return;
@@ -96,6 +101,7 @@ export default class Camera extends EventEmitter {
         easing?: any,
         callback?: () => void
     ) {
+        if (this.interactionLocked && key !== CameraKey.DISKETTES) return;
         if (this.currentKeyframe === key) return;
 
         if (this.targetKeyframe) TWEEN.removeAll();
@@ -136,6 +142,7 @@ export default class Camera extends EventEmitter {
 
     setMonitorListeners() {
         this.on('enterMonitor', () => {
+            if (this.interactionLocked) return;
             this.transition(
                 CameraKey.MONITOR,
                 2000,
@@ -144,6 +151,7 @@ export default class Camera extends EventEmitter {
             UIEventBus.dispatch('enterMonitor', {});
         });
         this.on('leftMonitor', () => {
+            if (this.interactionLocked) return;
             this.transition(CameraKey.DESK);
             UIEventBus.dispatch('leftMonitor', {});
         });
